@@ -320,4 +320,4 @@ class FishboneLink extends go.Link {
         return result;
     }
 }
-go.FishboneLayout = FishboneLayout;
+export {FishboneLayout, FishboneLink};
