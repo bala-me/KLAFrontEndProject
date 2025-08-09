@@ -24,7 +24,7 @@ export class FishboneComponent implements AfterViewInit {
   ngAfterViewInit(): void {
     this.myDiagram = this.fishboneService.initDiagram(this.diagramDiv, undefined);
     this.loadSavedDiagrams();
-    this.resizeDiagram(); // initial sizing
+    //this.resizeDiagram(); // initial sizing
   }
 
   // toolbar actions
@@ -69,18 +69,13 @@ export class FishboneComponent implements AfterViewInit {
     });
   }
 
- loadSelectedDiagram(): void {
-  const selected = this.savedDiagrams.find(d => d.id === this.selectedDiagramId);
-  if (!selected) return;
+ loadSelectedDiagram(diagram: any): void {
+  this.selectedDiagramId = diagram.id;
+  this.newDiagramName = diagram.name;
 
-  // Set name field so it auto-populates in input box
-  this.newDiagramName = selected.name;
-
-  this.fishboneService.loadDiagramById(this.selectedDiagramId).subscribe({
-    next: (diagram: any) => {
-      // Load into GoJS
-      //const modelData = JSON.parse(diagram.jsonData);
-     // this.myDiagram.model = go.TreeModel.fromJson(diagram.jsonData);
+  this.fishboneService.loadDiagramById(diagram.id).subscribe({
+    next: () => {
+      // model is set by the service already
     },
     error: err => alert('Error loading diagram: ' + err)
   });

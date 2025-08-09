@@ -138,6 +138,7 @@ export class FishboneService {
     const nodeDataArray: any[] = [];
     this.walkJson(JSON.parse(JSON.stringify(nested)), nodeDataArray); // clone to avoid mutating source
     this.diagram.model = new go.TreeModel(nodeDataArray);
+    console.log("finished setting model" + JSON.stringify(nested));
   }
 
   // read nested object (current model)

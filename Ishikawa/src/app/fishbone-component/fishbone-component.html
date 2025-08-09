@@ -1,19 +1,40 @@
-<div class="toolbar">
-  <button (click)="createNewDiagram()">New Diagram</button>
-  <button (click)="addChildSelected()">Add Child (selected)</button>
-  <button (click)="deleteSelected()">Delete Selected</button>
-   <select [(ngModel)]="selectedDiagramId" (change)="loadSelectedDiagram()">
-    <option *ngFor="let d of savedDiagrams" [value]="d.id">{{ d.name }}</option>
-  </select>
-   <!-- Input for new diagram name -->
-  <input type="text" [(ngModel)]="newDiagramName" placeholder="Enter name to save" />
+<div class="main-container">
+  <!-- Left panel: tiles -->
+  <div class="left-panel">
+    <div class="tile add-tile" (click)="createNewDiagram()">+ New Diagram</div>
+     <h3 class="diagram-title">All diagrams</h3>
+    <div class="diagram-grid">
+      <div 
+        class="diagram-tile" 
+        *ngFor="let d of savedDiagrams" 
+       (click)="loadSelectedDiagram(d)"
+       [class.selected]="d.id === selectedDiagramId"
+      >
+        {{ d.name }}
+      </div>
+    </div>
+  </div>
 
-  <!-- Save button -->
-  <button (click)="saveCurrentDiagram()">Save Diagram</button>
+  <!-- Right panel: diagram -->
+  <div class="right-panel">
+    <!-- Toolbar -->
+    <div class="toolbar">
 
-    <!-- Update button (only active if a diagram is loaded) -->
-  <button [disabled]="!selectedDiagramId" (click)="updateCurrentDiagram()">Update Existing Diagram</button>
+      <!-- Input + buttons styled like tiles -->
+ <div class="input-row">
+  <input 
+    type="text" 
+    [(ngModel)]="newDiagramName" 
+    placeholder="Enter diagram name"
+    class="diagram-input"
+  />
+
+  <button class="diagram-button save-btn" (click)="saveCurrentDiagram()">Save</button>
+  <button class="diagram-button update-btn" (click)="updateCurrentDiagram()">Update</button>
+</div>
+    </div>
+    <!-- Diagram container -->
+    <div #diagramDiv class="diagram-full"></div>
+  </div>
 </div>
 
-<!-- diagram container -->
-<div #diagramDiv class="diagram-full" style="border:1px solid #ccc;"></div>
