@@ -79,8 +79,8 @@ export class FishboneComponent implements AfterViewInit {
   this.fishboneService.loadDiagramById(this.selectedDiagramId).subscribe({
     next: (diagram: any) => {
       // Load into GoJS
-      const modelData = JSON.parse(diagram.data);
-      this.myDiagram.model = go.Model.fromJson(modelData);
+      //const modelData = JSON.parse(diagram.jsonData);
+     // this.myDiagram.model = go.TreeModel.fromJson(diagram.jsonData);
     },
     error: err => alert('Error loading diagram: ' + err)
   });
