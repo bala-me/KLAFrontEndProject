@@ -1,0 +1,11 @@
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+.diagram-full {
+  width: 100%;
+  height: calc(100% - 40px); /* leave room for toolbar */
+  overflow: hidden;
+}
+.toolbar { height: 40px; padding: 6px; background:#f5f5f5; border-bottom:1px solid #ddd; }

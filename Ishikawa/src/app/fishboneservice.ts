@@ -1,0 +1,194 @@
+import { Injectable, ElementRef } from '@angular/core';
+import * as go from 'gojs';
+// adjust path if your assets folder path is different
+import { FishboneLayout, FishboneLink } from '../assets/FishboneLayout.js';
+
+@Injectable({ providedIn: 'root' })
+export class FishboneService {
+  private diagram!: go.Diagram;
+  private fishboneData: any; // holds nested model
+
+  // initialize diagram and templates, load initial data
+  public initDiagram(diagramDiv: ElementRef, initialData?: any): go.Diagram {
+    const $ = go.GraphObject.make;
+
+    this.diagram = $(go.Diagram, diagramDiv.nativeElement, {
+      'undoManager.isEnabled': true,
+      isReadOnly: false,
+      allowHorizontalScroll: true,
+      allowVerticalScroll: true,
+      scrollMode: go.Diagram.InfiniteScroll,
+      minScale: 0.5
+    });
+
+    // ensure $ exists before creating makeButton that uses it
+    const makeButton = (text: string, action: (e: go.InputEvent, obj: go.GraphObject) => void) =>
+      $("ContextMenuButton",
+        $(go.TextBlock, text),
+        { click: action }
+      );
+
+    // context menu actions rely on adornedPart (need cast to Adornment)
+    const nodeMenu =
+      $("ContextMenu",
+        makeButton("Add Child", (_e, obj) => {
+          const node = (obj.part as go.Adornment)?.adornedPart;
+          if (node instanceof go.Node) {
+            this.addChild(node);
+          }
+        }),
+        makeButton("Delete", (_e, obj) => {
+          const node = (obj.part as go.Adornment)?.adornedPart;
+          if (node instanceof go.Node) {
+            this.deleteNode(node);
+          }
+        })
+      );
+
+    // Node template (editable)
+    this.diagram.nodeTemplate =
+      $(go.Node, 'Auto',
+        { contextMenu: nodeMenu },
+        $(go.Shape, 'RoundedRectangle',
+          {
+            fill: '#e0f7fa',
+            stroke: '#006064',
+            strokeWidth: 2
+          }
+        ),
+        $(go.TextBlock,
+          {
+            editable: true,
+            margin: 8,
+            wrap: go.TextBlock.WrapFit
+          },
+          new go.Binding('text').makeTwoWay(),
+          new go.Binding('font', '', (data: any) => {
+            const size = data.size ?? 13;
+            const weight = data.weight ?? '';
+            return `${weight} ${size}px sans-serif`;
+          })
+        )
+      );
+
+    // Link template (FishboneLink)
+    this.diagram.linkTemplate =
+      $(FishboneLink,
+        $(go.Shape, { stroke: '#004d40', strokeWidth: 2 }),
+        $(go.Shape, { toArrow: 'Standard', stroke: null, fill: '#004d40' })
+      );
+
+    // layout defaults
+    this.diagram.layout = $(FishboneLayout, {
+      angle: 180,
+      layerSpacing: 60,
+      nodeSpacing: 80,
+      rowSpacing: 40
+    });
+
+    // model-changed listener to keep nested data in sync
+    this.diagram.addModelChangedListener(e => {
+      if (e.isTransactionFinished) {
+        this.fishboneData = this.treeModelToNestedObject(this.diagram.model as go.TreeModel);
+      }
+    });
+
+    // load initial data (nested or flat)
+    if (initialData) {
+      this.loadFromNested(initialData);
+    } else {
+      // keep existing fishboneData if exists; otherwise default
+      if (!this.fishboneData) this.createDefault();
+      this.loadFromNested(this.fishboneData);
+    }
+
+    return this.diagram;
+  }
+
+  // expose diagram instance
+  public getDiagram(): go.Diagram {
+    return this.diagram;
+  }
+
+  // create a new default diagram (nested model)
+  public createDefault(): void {
+    this.fishboneData = {
+      text: 'Problem',
+      causes: [
+        { text: 'People' },
+        { text: 'Management' },
+        { text: 'Machine' },
+        { text: 'Environment' },
+        { text: 'Measurement' },
+        { text: 'Material' },
+      ]
+    };
+  }
+
+  // load from nested object (your original format)
+  public loadFromNested(nested: any): void {
+    this.fishboneData = nested;
+    const nodeDataArray: any[] = [];
+    this.walkJson(JSON.parse(JSON.stringify(nested)), nodeDataArray); // clone to avoid mutating source
+    this.diagram.model = new go.TreeModel(nodeDataArray);
+  }
+
+  // read nested object (current model)
+  public getNestedModel(): any {
+    return this.fishboneData;
+  }
+
+  // adds a child to a given node (node is go.Node)
+  public addChild(node: go.Node): void {
+    this.diagram.startTransaction('add node');
+    const newNode = { text: 'New Cause', parent: node.data.key };
+    (this.diagram.model as go.TreeModel).addNodeData(newNode);
+    this.diagram.commitTransaction('add node');
+  }
+
+  // deletes a node (and its subtree)
+  public deleteNode(node: go.Node): void {
+    this.diagram.startTransaction('delete node');
+    this.diagram.remove(node);
+    this.diagram.commitTransaction('delete node');
+  }
+
+  // helper: flatten nested JSON into nodeDataArray for TreeModel
+  private walkJson(obj: any, arr: any[]) {
+    const key = arr.length;
+    obj.key = key;
+    arr.push(obj);
+    if (obj.causes) {
+      obj.causes.forEach((c: any) => {
+        c.parent = key;
+        this.walkJson(c, arr);
+      });
+    }
+  }
+
+  // convert TreeModel (flat) back to nested object (removes key/parent)
+  private treeModelToNestedObject(model: go.TreeModel): any {
+    const dataMap: any = {};
+    model.nodeDataArray.forEach((n: any) => {
+      dataMap[n.key] = { ...n, causes: [] };
+    });
+
+    let root: any = null;
+    model.nodeDataArray.forEach((n: any) => {
+      if (n.parent !== undefined && n.parent !== null) {
+        dataMap[n.parent].causes.push(dataMap[n.key]);
+      } else {
+        root = dataMap[n.key];
+      }
+    });
+
+    function clean(obj: any) {
+      delete obj.key;
+      delete obj.parent;
+      if (!obj.causes || obj.causes.length === 0) delete obj.causes;
+      else obj.causes.forEach(clean);
+    }
+    if (root) clean(root);
+    return root;
+  }
+}
