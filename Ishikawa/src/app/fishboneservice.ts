@@ -2,12 +2,19 @@ import { Injectable, ElementRef } from '@angular/core';
 import * as go from 'gojs';
 // adjust path if your assets folder path is different
 import { FishboneLayout, FishboneLink } from '../assets/FishboneLayout.js';
+import { HttpClient } from '@angular/common/http';
+import { catchError, Observable, tap, throwError } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class FishboneService {
   private diagram!: go.Diagram;
   private fishboneData: any; // holds nested model
 
+  private apiUrl = 'http://localhost:5000/api/fishbones';
+
+  constructor(private http: HttpClient){
+    
+  }
   // initialize diagram and templates, load initial data
   public initDiagram(diagramDiv: ElementRef, initialData?: any): go.Diagram {
     const $ = go.GraphObject.make;
@@ -191,4 +198,58 @@ export class FishboneService {
     if (root) clean(root);
     return root;
   }
+
+  // Load diagram by ID from backend
+  public loadDiagramById(id: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/${id}`)
+      .pipe(
+        tap(response => {
+          if (response && response.jsonData) {
+            // JSON data is stored as string in DB, parse it before loading
+            const nested = typeof response.jsonData === 'string' ? JSON.parse(response.jsonData) : response.jsonData;
+            this.loadFromNested(nested);
+          }
+        }),
+        catchError(this.handleError)
+      );
+  }
+
+  // Get all saved diagrams metadata (id + name)
+  public getSavedDiagrams(): Observable<any[]> {
+    return this.http.get<any[]>(this.apiUrl)
+      .pipe(catchError(this.handleError));
+  }
+
+  // Save a new diagram
+  public saveDiagram(name: string): Observable<any> {
+    if (!this.fishboneData) {
+      throw new Error('No diagram data to save');
+    }
+    return this.http.post<any>(this.apiUrl, {
+      name,
+      jsonData: JSON.stringify(this.fishboneData) // stringify nested JSON for DB storage
+    }).pipe(catchError(this.handleError));
+  }
+
+  // Update existing diagram
+  public updateDiagram(id: string, name: string): Observable<any> {
+    if (!this.fishboneData) {
+      throw new Error('No diagram data to update');
+    }
+    return this.http.put<any>(`${this.apiUrl}/${id}`, {
+      name,
+      jsonData: JSON.stringify(this.fishboneData)
+    }).pipe(catchError(this.handleError));
+  }
+
+  // Delete diagram
+  public deleteDiagram(id: string): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/${id}`)
+      .pipe(catchError(this.handleError));
+  }
+  private handleError(error: any) {
+    console.error('API error:', error);
+    return throwError(error.message || 'Server error');
+  }
+
 }

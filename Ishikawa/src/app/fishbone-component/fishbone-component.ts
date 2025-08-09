@@ -1,20 +1,29 @@
 import { Component, AfterViewInit, ViewChild, ElementRef, HostListener } from '@angular/core';
 import { FishboneService } from '../fishboneservice';
 import * as go from 'gojs';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-fishbone',
+  imports: [FormsModule, CommonModule],
   templateUrl: './fishbone-component.html',
   styleUrls: ['./fishbone-component.css']
 })
 export class FishboneComponent implements AfterViewInit {
   @ViewChild('diagramDiv', { static: true }) diagramDiv!: ElementRef;
+
+  savedDiagrams: any[] = [];
+  selectedDiagramId = '';
+  newDiagramName = '';
+
   private myDiagram!: go.Diagram;
 
   constructor(private fishboneService: FishboneService) {}
 
   ngAfterViewInit(): void {
     this.myDiagram = this.fishboneService.initDiagram(this.diagramDiv, undefined);
+    this.loadSavedDiagrams();
     this.resizeDiagram(); // initial sizing
   }
 
@@ -52,4 +61,61 @@ export class FishboneComponent implements AfterViewInit {
       this.myDiagram.requestUpdate();
     }
   }
+
+  loadSavedDiagrams(): void {
+    this.fishboneService.getSavedDiagrams().subscribe({
+      next: diagrams => this.savedDiagrams = diagrams,
+      error: err => alert('Error loading diagrams: ' + err)
+    });
+  }
+
+ loadSelectedDiagram(): void {
+  const selected = this.savedDiagrams.find(d => d.id === this.selectedDiagramId);
+  if (!selected) return;
+
+  // Set name field so it auto-populates in input box
+  this.newDiagramName = selected.name;
+
+  this.fishboneService.loadDiagramById(this.selectedDiagramId).subscribe({
+    next: (diagram: any) => {
+      // Load into GoJS
+      const modelData = JSON.parse(diagram.data);
+      this.myDiagram.model = go.Model.fromJson(modelData);
+    },
+    error: err => alert('Error loading diagram: ' + err)
+  });
+}
+
+  saveCurrentDiagram(): void {
+    if (!this.newDiagramName) {
+      alert('Please enter a name');
+      return;
+    }
+    this.fishboneService.saveDiagram(this.newDiagramName).subscribe({
+      next: () => {
+        this.newDiagramName = '';
+        this.loadSavedDiagrams();
+      },
+      error: err => alert('Error saving diagram: ' + err)
+    });
+}
+
+updateCurrentDiagram(): void {
+  if (!this.selectedDiagramId) {
+    alert('Please select a diagram to update');
+    return;
+  }
+  if (!this.newDiagramName) {
+    alert('Please enter a name for the diagram');
+    return;
+  }
+
+  this.fishboneService.updateDiagram(this.selectedDiagramId, this.newDiagramName).subscribe({
+    next: () => {
+      this.loadSavedDiagrams(); // refresh list
+      alert('Diagram updated successfully');
+    },
+    error: err => alert('Error updating diagram: ' + err)
+  });
+}
 }

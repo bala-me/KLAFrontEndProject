@@ -2,6 +2,17 @@
   <button (click)="createNewDiagram()">New Diagram</button>
   <button (click)="addChildSelected()">Add Child (selected)</button>
   <button (click)="deleteSelected()">Delete Selected</button>
+   <select [(ngModel)]="selectedDiagramId" (change)="loadSelectedDiagram()">
+    <option *ngFor="let d of savedDiagrams" [value]="d.id">{{ d.name }}</option>
+  </select>
+   <!-- Input for new diagram name -->
+  <input type="text" [(ngModel)]="newDiagramName" placeholder="Enter name to save" />
+
+  <!-- Save button -->
+  <button (click)="saveCurrentDiagram()">Save Diagram</button>
+
+    <!-- Update button (only active if a diagram is loaded) -->
+  <button [disabled]="!selectedDiagramId" (click)="updateCurrentDiagram()">Update Existing Diagram</button>
 </div>
 
 <!-- diagram container -->
