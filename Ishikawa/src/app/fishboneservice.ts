@@ -75,7 +75,43 @@ export class FishboneService {
             const weight = data.weight ?? '';
             return `${weight} ${size}px sans-serif`;
           })
+        ),
+         {
+      selectionAdornmentTemplate:
+        $(go.Adornment, "Spot",
+          $(go.Panel, "Auto",
+            $(go.Shape, { fill: null, stroke: "dodgerblue", strokeWidth: 2 }),
+            $(go.Placeholder) // Node shape placeholder
+          ),
+          // Floating toolbar panel
+          $(go.Panel, "Horizontal",
+            {
+              alignment: go.Spot.TopRight,
+              alignmentFocus: go.Spot.BottomRight
+            },
+            $("Button",
+              {
+                click: (e, obj) => {
+                  const node = (obj.part as go.Adornment)?.adornedPart as go.Node;
+                  this.addChild(node);
+                },
+                toolTip: $("ToolTip", $(go.TextBlock, "Add Child"))
+              },
+              $(go.TextBlock, "+", { margin: 2, stroke: "green", font: "bold 14px sans-serif" })
+            ),
+            $("Button",
+              {
+                click: (e, obj) => {
+                  const node = (obj.part as go.Adornment)?.adornedPart as go.Node;
+                  this.deleteNode(node);
+                },
+                toolTip: $("ToolTip", $(go.TextBlock, "Delete Node"))
+              },
+              $(go.TextBlock, "×", { margin: 2, stroke: "red", font: "bold 14px sans-serif" })
+            )
+          )
         )
+    }
       );
 
     // Link template (FishboneLink)
