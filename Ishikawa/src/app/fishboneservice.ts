@@ -59,7 +59,6 @@ export class FishboneService {
     // Node template (editable)
     this.diagram.nodeTemplate =
       $(go.Node, 'Auto',
-        { contextMenu: nodeMenu },
         $(go.Shape, 'RoundedRectangle',
           {
             fill: '#e0f7fa',
@@ -160,7 +159,9 @@ export class FishboneService {
     // load initial data (nested or flat)
     if (initialData) {
       this.loadFromNested(initialData);
-    } else {
+    } 
+    
+    else {
       // keep existing fishboneData if exists; otherwise default
       if (!this.fishboneData) this.createDefault();
       this.loadFromNested(this.fishboneData);
@@ -201,7 +202,7 @@ export class FishboneService {
     const nodeDataArray: any[] = [];
     this.walkJson(JSON.parse(JSON.stringify(nested)), nodeDataArray); // clone to avoid mutating source
     this.diagram.model = new go.TreeModel(nodeDataArray);
-    console.log("finished setting model" + JSON.stringify(nested));
+    //  console.log("finished setting model" + JSON.stringify(nested));
   }
 
   // read nested object (current model)

@@ -11,7 +11,7 @@
        [class.selected]="d.id === selectedDiagramId"
       >
         {{ d.name }}
-        <button class="delete-btn" (click)="deleteDiagram(d, $event)" title="Delete diagram"  [disabled]="d.id === selectedDiagramId">🗑️</button>
+        <button class="delete-btn" (click)="deleteDiagram(d, $event)" title="Delete diagram"  [disabled]="d.id === selectedDiagramId"><mat-icon class="material-symbols-outlined" style="color: black">delete</mat-icon></button>
       </div>
     </div>
   </div>
@@ -19,7 +19,7 @@
   <!-- Right panel: diagram -->
   <div class="right-panel">
     <!-- Toolbar -->
-    <div class="toolbar">
+        <div class="toolbar">
 
       <!-- Input + buttons styled like tiles -->
  <div class="input-row">
@@ -33,8 +33,8 @@
   <button class="diagram-button save-btn" (click)="saveOrUpdateDiagram()">Save</button>
 </div>
     </div>
-    <!-- Diagram container -->
-    <div #diagramDiv class="diagram-full"></div>
+      <!-- Diagram container -->
+     <div #diagramDiv class="diagram-full"></div>
   </div>
 </div>
 

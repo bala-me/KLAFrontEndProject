@@ -8,10 +8,13 @@ import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog';
 import { InfoDialogComponent } from '../info-dialog/info-dialog';
 import { NodeInfoDialog } from '../node-info-dialog/node-info-dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatIconModule } from '@angular/material/icon';
+import {MatCard, MatCardContent} from '@angular/material/card'
+
 
 @Component({
   selector: 'app-fishbone',
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule, CommonModule, MatIconModule, MatCard, MatCardContent],
   templateUrl: './fishbone-component.html',
   styleUrls: ['./fishbone-component.css']
 })
@@ -21,6 +24,7 @@ export class FishboneComponent implements AfterViewInit {
   savedDiagrams: any[] = [];
   selectedDiagramId = '';
   newDiagramName = '';
+  isEditing = false;
 
   private myDiagram!: go.Diagram;
 
@@ -47,19 +51,28 @@ export class FishboneComponent implements AfterViewInit {
     this.fishboneService.setDeleteHandler(async (node: go.Node) => {
     let message = "Delete this node?";
     
+   
     if (node.findTreeChildrenNodes().count > 0) {
-      message = "This node has child nodes. Delete the node and ALL its children?";
-      const confirmed = await this.dialog
-      .open(ConfirmDialogComponent, {
-        width: '350px',
-        panelClass: 'square-dialog',
-        data: { message }
-      })
-      .afterClosed()
-      .toPromise();
+      if(node.isTreeRoot){
+        this.snackBar.open('Cannot delete the root node. You can delete the whole fishbone diagram on the left pane', 'Close',{
+          duration: 5000,
+          panelClass: ['red-snackbar']
+        });
+      }
+      else{
+        message = "This node has child nodes. Delete the node and ALL its children?";
+        const confirmed = await this.dialog
+        .open(ConfirmDialogComponent, {
+          width: '350px',
+          panelClass: 'square-dialog',
+          data: { message }
+        })
+        .afterClosed()
+        .toPromise();
 
-      if (confirmed) {
-        this.fishboneService.deleteNodeAndChildren(node);
+        if (confirmed) {
+          this.fishboneService.deleteNodeAndChildren(node);
+        }
       }
     }
     else{
@@ -84,7 +97,7 @@ onSaveSuccess() {
   this.snackBar.open('Diagram saved successfully', 'Close', {
     duration: 5000, // 5 seconds
     panelClass: ['snackbar-success'] // optional for styling
-});
+  });
 }
 
 onUpdateSuccess() {
@@ -111,6 +124,7 @@ onDeleteSuccess() {
 
   // toolbar actions
   createNewDiagram(): void {
+    this.isEditing = true;
     this.fishboneService.createDefault();
     this.fishboneService.loadFromNested(this.fishboneService.getNestedModel());
     this.selectedDiagramId = '';    // clear selection
@@ -154,6 +168,7 @@ onDeleteSuccess() {
   }
 
  loadSelectedDiagram(diagram: any): void {
+   this.isEditing = true;
   this.selectedDiagramId = diagram.id;
   this.newDiagramName = diagram.name;
 

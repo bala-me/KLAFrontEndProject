@@ -59,7 +59,8 @@
 
 .diagram-tile {
   position: relative;
-  background-color: #2196f3;
+  background-color: #28a745;
+  color:white;
   border-radius: 8px;
   padding: 10px;
   display: flex;
@@ -67,7 +68,6 @@
   align-items: center;
   justify-content: center;
   aspect-ratio: 1 / 1; /* keeps tiles square */
-  font-weight: bold;
   cursor: pointer;
   transition: background-color 0.2s ease;
 }
@@ -113,7 +113,7 @@
 }
 
 .save-btn {
-  background-color: #4caf50;
+  background-color: #28a745;
   color: white;
 }
 
@@ -147,4 +147,9 @@
 
 .delete-btn:hover {
   color: #c9302c;
+}
+
+.red-snackbar{
+background-color: #f44336 !important;
+ color: white !important;
 }
