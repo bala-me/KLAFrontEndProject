@@ -1,9 +1,11 @@
-import { Injectable, ElementRef } from '@angular/core';
+import { Injectable, ElementRef, EventEmitter } from '@angular/core';
 import * as go from 'gojs';
 // adjust path if your assets folder path is different
 import { FishboneLayout, FishboneLink } from '../assets/FishboneLayout.js';
 import { HttpClient } from '@angular/common/http';
 import { catchError, Observable, tap, throwError } from 'rxjs';
+import { NodeInfoDialog } from './node-info-dialog/node-info-dialog.js';
+
 
 @Injectable({ providedIn: 'root' })
 export class FishboneService {
@@ -11,6 +13,8 @@ export class FishboneService {
   private fishboneData: any; // holds nested model
 
   private apiUrl = 'http://localhost:5000/api/fishbones';
+
+  nodeInfoRequested = new EventEmitter<go.Node>();
 
   constructor(private http: HttpClient){
     
@@ -110,7 +114,22 @@ export class FishboneService {
                 toolTip: $("ToolTip", $(go.TextBlock, "Delete Node"))
               },
               $(go.TextBlock, "×", { margin: 2, stroke: "red", font: "bold 14px sans-serif" })
+            ),
+
+             $("Button",
+              {
+                click: (e, obj) => {
+                  const node = (obj.part as go.Adornment)?.adornedPart as go.Node;
+                  if (node) {
+                    this.requestNodeInfo(node); // tells component "open dialog for this node"
+                  }
+                },
+                toolTip: $("ToolTip", $(go.TextBlock, "Add info to node"))
+              },
+              $(go.TextBlock, "ℹ", { margin: 2, stroke: "red", font: "bold 14px sans-serif" })
             )
+
+            
           )
         )
     }
@@ -312,9 +331,23 @@ export class FishboneService {
     return this.http.delete<any>(`${this.apiUrl}/${id}`)
       .pipe(catchError(this.handleError));
   }
+
+  requestNodeInfo(node: go.Node) {
+    this.nodeInfoRequested.emit(node);
+  }
+
+  updateNodeInfo(node: go.Node, info: string) {
+    if (!node || !this.diagram) return;
+    this.diagram.startTransaction("updateNodeInfo");
+    this.diagram.model.setDataProperty(node.data, "info", info);
+    this.diagram.commitTransaction("updateNodeInfo");
+  }
+
   private handleError(error: any) {
     console.error('API error:', error);
     return throwError(error.message || 'Server error');
   }
+
+
 
 }

@@ -1,0 +1,10 @@
+<h2 mat-dialog-title>Node Information</h2>
+
+<mat-dialog-content>
+  <textarea [(ngModel)]="infoText" rows="5" style="width:100%"></textarea>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button class="square-btn cancel-btn" (click)="onCancel()">Cancel</button>
+  <button mat-button class="square-btn confirm-btn" (click)="onSave()">Save</button>
+</mat-dialog-actions>

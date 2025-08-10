@@ -11,6 +11,7 @@
        [class.selected]="d.id === selectedDiagramId"
       >
         {{ d.name }}
+        <button class="delete-btn" (click)="deleteDiagram(d, $event)" title="Delete diagram"  [disabled]="d.id === selectedDiagramId">🗑️</button>
       </div>
     </div>
   </div>
@@ -29,8 +30,7 @@
     class="diagram-input"
   />
 
-  <button class="diagram-button save-btn" (click)="saveCurrentDiagram()">Save</button>
-  <button class="diagram-button update-btn" (click)="updateCurrentDiagram()">Update</button>
+  <button class="diagram-button save-btn" (click)="saveOrUpdateDiagram()">Save</button>
 </div>
     </div>
     <!-- Diagram container -->

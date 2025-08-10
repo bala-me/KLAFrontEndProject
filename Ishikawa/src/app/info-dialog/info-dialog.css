@@ -27,23 +27,11 @@ h2[mat-dialog-title] {
   border-radius: 0 !important;
   font-weight: bold;
   padding: 6px 20px;
+  background-color: #1976d2;
+  color: white;
   text-transform: uppercase;
 }
 
-.cancel-btn {
-  background-color: #f44336;
-  color: white;
-}
-
-.cancel-btn:hover {
-  background-color: #c62828;
-}
-
-.confirm-btn {
-  background-color: #1976d2;
-  color: white;
-}
-
-.confirm-btn:hover {
+.square-btn:hover {
   background-color: #145a9e;
 }

@@ -5,6 +5,8 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog';
+import { InfoDialogComponent } from '../info-dialog/info-dialog';
+import { NodeInfoDialog } from '../node-info-dialog/node-info-dialog';
 
 @Component({
   selector: 'app-fishbone',
@@ -24,13 +26,32 @@ export class FishboneComponent implements AfterViewInit {
   constructor(private fishboneService: FishboneService, private dialog: MatDialog) {}
 
   ngOnInit(){
+
+    this.fishboneService.nodeInfoRequested.subscribe(node => {
+    const currentInfo = node.data.info || '';
+
+    const dialogRef = this.dialog.open(NodeInfoDialog, {
+      width: '350px',
+      panelClass: 'square-dialog',
+      data: { info: currentInfo }
+    });
+
+    dialogRef.afterClosed().subscribe((result: string | undefined) => {
+      if (result !== undefined) {
+        this.fishboneService.updateNodeInfo(node, result);
+      }
+    });
+  });
+
     this.fishboneService.setDeleteHandler(async (node: go.Node) => {
     let message = "Delete this node?";
+    
     if (node.findTreeChildrenNodes().count > 0) {
       message = "This node has child nodes. Delete the node and ALL its children?";
       const confirmed = await this.dialog
       .open(ConfirmDialogComponent, {
         width: '350px',
+        panelClass: 'square-dialog',
         data: { message }
       })
       .afterClosed()
@@ -53,10 +74,34 @@ export class FishboneComponent implements AfterViewInit {
     //this.resizeDiagram(); // initial sizing
   }
 
+  
+onSaveSuccess() {
+  this.dialog.open(InfoDialogComponent, {
+    width: '350px',
+    data: { message: 'Diagram saved successfully!' }
+  });
+}
+
+onUpdateSuccess() {
+  this.dialog.open(InfoDialogComponent, {
+    width: '350px',
+    data: { message: 'Diagram updated successfully!' }
+  });
+}
+
+onDeleteSuccess() {
+  this.dialog.open(InfoDialogComponent, {
+    width: '350px',
+    data: { message: 'Diagram deleted successfully!' }
+  });
+}
+
   // toolbar actions
   createNewDiagram(): void {
     this.fishboneService.createDefault();
     this.fishboneService.loadFromNested(this.fishboneService.getNestedModel());
+    this.selectedDiagramId = '';    // clear selection
+    this.newDiagramName = '';   
   }
 
   // expose nested data for debugging / saving
@@ -116,6 +161,7 @@ export class FishboneComponent implements AfterViewInit {
       next: () => {
         this.newDiagramName = '';
         this.loadSavedDiagrams();
+        this.onSaveSuccess();
       },
       error: err => alert('Error saving diagram: ' + err)
     });
@@ -134,9 +180,58 @@ updateCurrentDiagram(): void {
   this.fishboneService.updateDiagram(this.selectedDiagramId, this.newDiagramName).subscribe({
     next: () => {
       this.loadSavedDiagrams(); // refresh list
-      alert('Diagram updated successfully');
+      this.onUpdateSuccess();
+      //alert('Diagram updated successfully');
     },
     error: err => alert('Error updating diagram: ' + err)
   });
+}
+
+saveOrUpdateDiagram(): void {
+  if (!this.newDiagramName) {
+    alert('Please enter a diagram name');
+    return;
+  }
+
+  if (this.selectedDiagramId) {
+    // Update existing diagram
+    this.updateCurrentDiagram();
+  } else {
+    // Save new diagram
+    this.saveCurrentDiagram();
+  }
+}
+
+deleteDiagram(diagram: any, event: MouseEvent): void  {
+  event.stopPropagation(); // prevent tile click from firing
+  
+   const message = `Are you sure you want to delete "${diagram.name}"? This action cannot be undone.`;
+    const confirmed = this.dialog
+    .open(ConfirmDialogComponent, {
+      width: '350px',
+      panelClass: 'square-dialog',
+      data: { message }
+    }).afterClosed();
+
+  confirmed.subscribe(
+    result => {
+      if(result){
+          this.fishboneService.deleteDiagram(diagram.id).subscribe({
+          next: () => {
+        
+            this.loadSavedDiagrams();
+            this.onDeleteSuccess();
+
+            if (this.selectedDiagramId === diagram.id) {
+              this.selectedDiagramId = '';
+              this.newDiagramName = '';
+              this.fishboneService.createDefault();
+              this.fishboneService.loadFromNested(this.fishboneService.getNestedModel());
+            }
+          },
+          error: err => alert(`Error deleting diagram: ${err}`)
+    });
+  }
+});
 }
 }

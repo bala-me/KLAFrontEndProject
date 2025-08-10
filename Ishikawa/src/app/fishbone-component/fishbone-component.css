@@ -58,13 +58,15 @@
 }
 
 .diagram-tile {
+  position: relative;
   background-color: #2196f3;
   border-radius: 8px;
   padding: 10px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  aspect-ratio: 1 / 1; /* keeps tiles perfectly square */
+  aspect-ratio: 1 / 1; /* keeps tiles square */
   font-weight: bold;
   cursor: pointer;
   transition: background-color 0.2s ease;
@@ -129,4 +131,20 @@
   background: white;
   border: 1px solid #ccc;
   border-radius: 4px;
+}
+
+.delete-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: #d9534f; /* bootstrap danger red */
+  z-index: 2;
+}
+
+.delete-btn:hover {
+  color: #c9302c;
 }
