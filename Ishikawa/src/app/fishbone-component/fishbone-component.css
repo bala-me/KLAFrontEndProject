@@ -178,3 +178,13 @@ background-color: #f44336 !important;
   background-color: rgba(255, 255, 255, 0.9); /* slight transparency over dots */
   color:red;
 }
+
+.filter-buttons {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.diagram-title {
+  margin-bottom: 0.25rem;
+}

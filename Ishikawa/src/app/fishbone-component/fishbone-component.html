@@ -2,11 +2,23 @@
   <!-- Left panel: tiles -->
   <div class="left-panel">
     <div class="tile add-tile" (click)="createNewDiagram()">+ New Diagram</div>
-     <h3 class="diagram-title">All diagrams</h3>
+     <h3 class="diagram-title">Available diagrams</h3>
+      <div class="filter-buttons">
+      <button mat-button 
+              (click)="showMyDiagrams()" 
+              [disabled]="filterMode === 'mine'">
+        Mine
+      </button>
+      <button mat-button 
+              (click)="showAllDiagrams()" 
+              [disabled]="filterMode === 'all'">
+        All
+      </button>
+    </div>
     <div class="diagram-grid">
       <div 
         class="diagram-tile" 
-        *ngFor="let d of savedDiagrams" 
+        *ngFor="let d of displayedDiagrams" 
        (click)="loadSelectedDiagram(d)"
        [class.selected]="d.id === selectedDiagramId"
       >

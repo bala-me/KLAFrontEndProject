@@ -21,6 +21,8 @@ import {MatCard, MatCardContent} from '@angular/material/card'
 export class FishboneComponent implements AfterViewInit {
   @ViewChild('diagramDiv', { static: true }) diagramDiv!: ElementRef;
 
+  filterMode: 'mine' | 'all' = 'mine';
+  displayedDiagrams: any[] = [];
   savedDiagrams: any[] = [];
   selectedDiagramId = '';
   newDiagramName = '';
@@ -85,6 +87,7 @@ export class FishboneComponent implements AfterViewInit {
   ngAfterViewInit(): void {
     this.myDiagram = this.fishboneService.initDiagram(this.diagramDiv, undefined);
     this.loadSavedDiagrams();
+    
     //this.resizeDiagram(); // initial sizing
   }
 
@@ -120,6 +123,29 @@ onDeleteSuccess() {
     duration: 5000, // 5 updated
     panelClass: ['snackbar-success'] // optional for styling
    });
+}
+
+showMyDiagrams() {
+  this.filterMode = 'mine';
+ // Only exit editing if current selected diagram is not in filtered list
+ console.log(this.displayedDiagrams.toString());
+
+  this.displayedDiagrams = this.savedDiagrams.slice(0, 5); // first 5 only
+    if (!this.displayedDiagrams.some(d => d.id === this.selectedDiagramId)) {
+    this.isEditing = false;
+    this.selectedDiagramId = '';
+  }
+}
+
+showAllDiagrams() {
+  this.filterMode = 'all';
+
+  this.displayedDiagrams = this.savedDiagrams; // all items
+   // Only exit editing if current selected diagram is not in filtered list
+  if (!this.displayedDiagrams.some(d => d.id === this.selectedDiagramId)) {
+    this.isEditing = false;
+    this.selectedDiagramId = ''
+  }
 }
 
   // toolbar actions
@@ -165,9 +191,21 @@ onDeleteSuccess() {
     }
   }
 
-  loadSavedDiagrams(): void {
+  loadSavedDiagrams(keepEditing = false): void {
     this.fishboneService.getSavedDiagrams().subscribe({
-      next: diagrams => this.savedDiagrams = diagrams,
+      next: diagrams => {
+      this.savedDiagrams = diagrams;
+      
+      if (this.filterMode === 'mine') {
+        this.showMyDiagrams();
+      } else {
+        this.showAllDiagrams();
+      }
+      // If keepEditing flag is true, don't kill edit mode
+      if (!keepEditing && !this.displayedDiagrams.some(d => d.id === this.selectedDiagramId)) {
+        this.isEditing = false;
+      }
+    },
       error: err => alert('Error loading diagrams: ' + err)
     });
   }
@@ -193,7 +231,7 @@ onDeleteSuccess() {
     this.fishboneService.saveDiagram(this.newDiagramName).subscribe({
       next: () => {
         this.newDiagramName = '';
-        this.loadSavedDiagrams();
+        this.loadSavedDiagrams(true);
         this.onSaveSuccess();
       },
       error: err => alert('Error saving diagram: ' + err)
@@ -212,7 +250,7 @@ updateCurrentDiagram(): void {
 
   this.fishboneService.updateDiagram(this.selectedDiagramId, this.newDiagramName).subscribe({
     next: () => {
-      this.loadSavedDiagrams(); // refresh list
+      this.loadSavedDiagrams(true); // refresh list
       this.onUpdateSuccess();
       //alert('Diagram updated successfully');
     },
@@ -252,7 +290,7 @@ deleteDiagram(diagram: any, event: MouseEvent): void  {
           this.fishboneService.deleteDiagram(diagram.id).subscribe({
           next: () => {
         
-            this.loadSavedDiagrams();
+            this.loadSavedDiagrams(true);
             this.onDeleteSuccess();
 
             if (this.selectedDiagramId === diagram.id) {

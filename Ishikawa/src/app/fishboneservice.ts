@@ -144,8 +144,8 @@ export class FishboneService {
     // layout defaults
     this.diagram.layout = $(FishboneLayout, {
       angle: 180,
-      layerSpacing: 60,
-      nodeSpacing: 80,
+      layerSpacing: 40,
+      nodeSpacing: 40,
       rowSpacing: 40
     });
 
