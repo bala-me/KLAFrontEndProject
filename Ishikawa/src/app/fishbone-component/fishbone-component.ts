@@ -7,6 +7,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog';
 import { InfoDialogComponent } from '../info-dialog/info-dialog';
 import { NodeInfoDialog } from '../node-info-dialog/node-info-dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-fishbone',
@@ -23,7 +24,7 @@ export class FishboneComponent implements AfterViewInit {
 
   private myDiagram!: go.Diagram;
 
-  constructor(private fishboneService: FishboneService, private dialog: MatDialog) {}
+  constructor(private fishboneService: FishboneService, private dialog: MatDialog, private snackBar: MatSnackBar) {}
 
   ngOnInit(){
 
@@ -76,24 +77,36 @@ export class FishboneComponent implements AfterViewInit {
 
   
 onSaveSuccess() {
-  this.dialog.open(InfoDialogComponent, {
+  /*this.dialog.open(InfoDialogComponent, {
     width: '350px',
     data: { message: 'Diagram saved successfully!' }
-  });
+  });*/
+  this.snackBar.open('Diagram saved successfully', 'Close', {
+    duration: 5000, // 5 seconds
+    panelClass: ['snackbar-success'] // optional for styling
+});
 }
 
 onUpdateSuccess() {
-  this.dialog.open(InfoDialogComponent, {
-    width: '350px',
-    data: { message: 'Diagram updated successfully!' }
-  });
+  // this.dialog.open(InfoDialogComponent, {
+  //   width: '350px',
+  //   data: { message: 'Diagram updated successfully!' }
+  // });
+  this.snackBar.open('Diagram updated successfully', 'Close', {
+    duration: 5000, // 5 updated
+    panelClass: ['snackbar-success'] // optional for styling
+   });
 }
 
 onDeleteSuccess() {
-  this.dialog.open(InfoDialogComponent, {
-    width: '350px',
-    data: { message: 'Diagram deleted successfully!' }
-  });
+  // this.dialog.open(InfoDialogComponent, {
+  //   width: '350px',
+  //   data: { message: 'Diagram deleted successfully!' }
+  // });
+   this.snackBar.open('Diagram deleted successfully', 'Close', {
+    duration: 5000, // 5 updated
+    panelClass: ['snackbar-success'] // optional for styling
+   });
 }
 
   // toolbar actions
