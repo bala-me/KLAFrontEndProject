@@ -32,10 +32,12 @@
 }
 
 .right-panel {
+  position: relative;
   flex: 1; /* Take the rest of the space */
   display: flex;
   flex-direction: column;
 }
+
 
 .toolbar {
   padding: 8px;
@@ -78,7 +80,7 @@
 
 .diagram-tile.selected {
   background-color: #cce5ff; /* soft blue */
-  border: 2px solid #3399ff;
+  border: 2px solid #28a745;
   box-shadow: 0 4px 8px rgba(51, 153, 255, 0.4);
 }
 
@@ -152,4 +154,27 @@
 .red-snackbar{
 background-color: #f44336 !important;
  color: white !important;
+}
+
+.hidden {
+  display: none;
+}
+
+.empty-state {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: white;
+  background-image: radial-gradient(#ccc 1px, transparent 1px);
+  background-size: 20px 20px; /* dot spacing */
+}
+
+.empty-card {
+  text-align: center;
+  max-width: 400px;
+  width: 80%;
+  background-color: rgba(255, 255, 255, 0.9); /* slight transparency over dots */
+  color:red;
 }

@@ -129,6 +129,11 @@ onDeleteSuccess() {
     this.fishboneService.loadFromNested(this.fishboneService.getNestedModel());
     this.selectedDiagramId = '';    // clear selection
     this.newDiagramName = '';   
+
+    setTimeout(() => {
+  this.myDiagram.layoutDiagram(true); // recompute positions
+  this.myDiagram.centerRect(this.myDiagram.documentBounds); // center it
+}, 0);
   }
 
   // expose nested data for debugging / saving

@@ -19,6 +19,17 @@
   <!-- Right panel: diagram -->
   <div class="right-panel">
     <!-- Toolbar -->
+
+    @if(!isEditing){
+      <div class="empty-state">
+    <mat-card class="empty-card">
+      <mat-card-content>
+        Please create a new fishbone or select an existing fishbone from the left pane.
+      </mat-card-content>
+    </mat-card>
+  </div>
+    }
+    @else{
         <div class="toolbar">
 
       <!-- Input + buttons styled like tiles -->
@@ -33,8 +44,9 @@
   <button class="diagram-button save-btn" (click)="saveOrUpdateDiagram()">Save</button>
 </div>
     </div>
+  }
       <!-- Diagram container -->
-     <div #diagramDiv class="diagram-full"></div>
+     <div #diagramDiv class="diagram-full" [class.hidden] = "!isEditing"></div>
   </div>
 </div>
 
