@@ -3,6 +3,8 @@ import { FishboneService } from '../fishboneservice';
 import * as go from 'gojs';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog';
 
 @Component({
   selector: 'app-fishbone',
@@ -19,8 +21,32 @@ export class FishboneComponent implements AfterViewInit {
 
   private myDiagram!: go.Diagram;
 
-  constructor(private fishboneService: FishboneService) {}
+  constructor(private fishboneService: FishboneService, private dialog: MatDialog) {}
 
+  ngOnInit(){
+    this.fishboneService.setDeleteHandler(async (node: go.Node) => {
+    let message = "Delete this node?";
+    if (node.findTreeChildrenNodes().count > 0) {
+      message = "This node has child nodes. Delete the node and ALL its children?";
+      const confirmed = await this.dialog
+      .open(ConfirmDialogComponent, {
+        width: '350px',
+        data: { message }
+      })
+      .afterClosed()
+      .toPromise();
+
+      if (confirmed) {
+        this.fishboneService.deleteNodeAndChildren(node);
+      }
+    }
+    else{
+      this.fishboneService.deleteNodeAndChildren(node);
+    }
+
+    
+  });
+  }
   ngAfterViewInit(): void {
     this.myDiagram = this.fishboneService.initDiagram(this.diagramDiv, undefined);
     this.loadSavedDiagrams();
@@ -47,7 +73,7 @@ export class FishboneComponent implements AfterViewInit {
   // Delete selected node (delegates)
   deleteSelected(): void {
     const sel = this.myDiagram.selection.first();
-    if (sel instanceof go.Node) this.fishboneService.deleteNode(sel);
+    if (sel instanceof go.Node) this.fishboneService.deleteNodeAndChildren(sel);
   }
 
   @HostListener('window:resize')

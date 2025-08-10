@@ -47,7 +47,7 @@ export class FishboneService {
         makeButton("Delete", (_e, obj) => {
           const node = (obj.part as go.Adornment)?.adornedPart;
           if (node instanceof go.Node) {
-            this.deleteNode(node);
+            this.deleteNodeAndChildren(node);
           }
         })
       );
@@ -103,7 +103,9 @@ export class FishboneService {
               {
                 click: (e, obj) => {
                   const node = (obj.part as go.Adornment)?.adornedPart as go.Node;
-                  this.deleteNode(node);
+                  if(node && this.deleteHandler){
+                    this.deleteHandler(node);
+                  }
                 },
                 toolTip: $("ToolTip", $(go.TextBlock, "Delete Node"))
               },
@@ -146,6 +148,12 @@ export class FishboneService {
     }
 
     return this.diagram;
+  }
+
+  private deleteHandler: ((node: go.Node) => void) | null = null;
+
+  setDeleteHandler(handler: (node: go.Node) => void) {
+    this.deleteHandler = handler;
   }
 
   // expose diagram instance
@@ -197,6 +205,26 @@ export class FishboneService {
     this.diagram.commitTransaction('delete node');
   }
 
+  deleteNodeAndChildren(node: go.Node) {
+  if (!node) return;
+  const diagram = node.diagram;
+  if (!diagram) return;
+  
+  if(node.findTreeChildrenNodes().count >0){}
+  diagram.startTransaction("delete subtree");
+
+  // Helper: collect all children recursively
+  const collectSubtree = (n: go.Node, coll: go.Set<go.Part>) => {
+    coll.add(n);
+    n.findTreeChildrenNodes().each(child => collectSubtree(child, coll));
+  };
+
+  const parts = new go.Set<go.Part>();
+  collectSubtree(node, parts);
+
+  diagram.removeParts(parts, true); // `true` removes links too
+  diagram.commitTransaction("delete subtree");
+}
   // helper: flatten nested JSON into nodeDataArray for TreeModel
   private walkJson(obj: any, arr: any[]) {
     const key = arr.length;
