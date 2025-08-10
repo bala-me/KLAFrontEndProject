@@ -188,3 +188,34 @@ background-color: #f44336 !important;
 .diagram-title {
   margin-bottom: 0.25rem;
 }
+
+.app-header {
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(90deg, #0f62fe, #42a5f5);
+  color: white;
+  padding: 10px 20px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.logo-section {
+  display: flex;
+  align-items: center;
+}
+
+.app-logo {
+  height: 40px;
+  margin-right: 10px;
+}
+
+.app-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.banner-section {
+  margin-top: 5px;
+  font-size: 1rem;
+  font-style: italic;
+  opacity: 0.9;
+}
