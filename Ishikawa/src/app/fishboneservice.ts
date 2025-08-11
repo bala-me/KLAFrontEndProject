@@ -19,6 +19,7 @@ export class FishboneService {
   constructor(private http: HttpClient) {
 
   }
+
   // initialize diagram and templates, load initial data
   public initDiagram(diagramDiv: ElementRef, initialData?: any): go.Diagram {
     const $ = go.GraphObject.make;
@@ -347,12 +348,7 @@ export class FishboneService {
       errorMessage = error.message;
     }
 
-    // You can customize this to display error messages in UI, etc.
-
     // Return an observable with a user-facing error message
     return throwError(() => new Error(errorMessage));
   }
-
-
-
 }

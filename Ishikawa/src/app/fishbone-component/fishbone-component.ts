@@ -34,174 +34,56 @@ export class FishboneComponent implements AfterViewInit {
 
   ngOnInit() {
 
-    this.fishboneService.nodeInfoRequested.subscribe(node => {
-      const currentInfo = node.data.info || '';
 
-      const dialogRef = this.dialog.open(NodeInfoDialog, {
-        width: '350px',
-        panelClass: 'square-dialog',
-        data: { info: currentInfo }
-      });
+    this.SubsribeToNodeInfoRequestedEvent();
 
-      dialogRef.afterClosed().subscribe((result: string | undefined) => {
-        if (result !== undefined) {
-          this.fishboneService.updateNodeInfo(node, result);
-        }
-      });
-    });
-
-    this.fishboneService.setDeleteHandler(async (node: go.Node) => {
-      let message = "Delete this node?";
-
-
-      if (node.findTreeChildrenNodes().count > 0) {
-        if (node.isTreeRoot) {
-          this.snackBar.open('Cannot delete the root node. You can delete the whole fishbone diagram on the left pane', 'Close', {
-            duration: 5000,
-            panelClass: ['red-snackbar']
-          });
-        }
-        else {
-          message = "This node has child nodes. Delete the node and ALL its children?";
-          const confirmed = await this.dialog
-            .open(ConfirmDialogComponent, {
-              width: '350px',
-              panelClass: 'square-dialog',
-              data: { message }
-            })
-            .afterClosed()
-            .toPromise();
-
-          if (confirmed) {
-            this.fishboneService.deleteNodeAndChildren(node);
-          }
-        }
-      }
-      else {
-        this.fishboneService.deleteNodeAndChildren(node);
-      }
-
-
-    });
+    this.SetDeleteNodeHandler();
   }
+
   ngAfterViewInit(): void {
     this.myDiagram = this.fishboneService.initDiagram(this.diagramDiv, undefined);
     this.loadSavedDiagrams();
-
-    //this.resizeDiagram(); // initial sizing
-  }
-
-
-  onSaveSuccess() {
-    /*this.dialog.open(InfoDialogComponent, {
-      width: '350px',
-      data: { message: 'Diagram saved successfully!' }
-    });*/
-    this.snackBar.open('Diagram saved successfully', 'Close', {
-      duration: 5000, // 5 seconds
-      panelClass: ['snackbar-success'] // optional for styling
-    });
-  }
-
-  onUpdateSuccess() {
-    // this.dialog.open(InfoDialogComponent, {
-    //   width: '350px',
-    //   data: { message: 'Diagram updated successfully!' }
-    // });
-    this.snackBar.open('Diagram updated successfully', 'Close', {
-      duration: 5000, // 5 updated
-      panelClass: ['snackbar-success'] // optional for styling
-    });
-  }
-
-  onDeleteSuccess() {
-    // this.dialog.open(InfoDialogComponent, {
-    //   width: '350px',
-    //   data: { message: 'Diagram deleted successfully!' }
-    // });
-    this.snackBar.open('Diagram deleted successfully', 'Close', {
-      duration: 5000, // 5 updated
-      panelClass: ['snackbar-success'] // optional for styling
-    });
   }
 
   showMyDiagrams() {
     this.filterMode = 'mine';
-    // Only exit editing if current selected diagram is not in filtered list
-    //console.log(this.displayedDiagrams.toString());
+
     const length = this.savedDiagrams.length;
     this.displayedDiagrams = this.savedDiagrams.slice(Math.max(length - 5, 0), length);// bottom 5 only
-    if (!this.displayedDiagrams.some(d => d.id === this.selectedDiagramId)) {
-      this.isEditing = false;
-      this.selectedDiagramId = '';
-    }
+    this.checkAndResetControls();
   }
+
 
   showAllDiagrams() {
     this.filterMode = 'all';
 
     this.displayedDiagrams = [...this.savedDiagrams]; // all items
     // Only exit editing if current selected diagram is not in filtered list
+    this.checkAndResetControls();
+  }
+
+  private checkAndResetControls() {
     if (!this.displayedDiagrams.some(d => d.id === this.selectedDiagramId)) {
       this.isEditing = false;
-      this.selectedDiagramId = ''
+      this.selectedDiagramId = '';
     }
   }
 
   // toolbar actions
   createNewDiagram(): void {
     this.fishboneService.createDefault();
-    
+
     this.isEditing = true;
-    
+
     this.selectedDiagramId = '';    // clear selection
     this.newDiagramName = '';
 
     // Set container size before layout:
-      setTimeout(() => {
+    setTimeout(() => {
       this.myDiagram.layoutDiagram(true); // recompute positions
       this.myDiagram.centerRect(this.myDiagram.documentBounds); // center it
       this.fishboneService.loadFromNested(this.fishboneService.getNestedModel());
     }, 0);
-  }
-
-  // expose nested data for debugging / saving
-  getNestedJson(): any {
-    return this.fishboneService.getNestedModel();
-  }
-
-  // Add child to selection (delegates to service)
-  addChildSelected(): void {
-    const sel = this.myDiagram.selection.first();
-    if (sel instanceof go.Node) this.fishboneService.addChild(sel);
-  }
-
-  // Delete selected node (delegates)
-  deleteSelected(): void {
-    const sel = this.myDiagram.selection.first();
-    if (sel instanceof go.Node) this.fishboneService.deleteNodeAndChildren(sel);
-  }
-
-  @HostListener('window:resize')
-  resizeDiagram(): void {
-    if (this.myDiagram) {
-      const toolbarHeight = document.querySelector('.toolbar')?.clientHeight ?? 0;
-      const height = window.innerHeight - toolbarHeight;
-      this.myDiagram.div!.style.height = height + 'px';
-      this.myDiagram.div!.style.width = window.innerWidth + 'px';
-      this.myDiagram.requestUpdate();
-    }
-  }
-
-  private layoutAndCenterDiagram(): void {
-    // Use double requestAnimationFrame for rendering sync with browser repaint cycle
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        this.myDiagram.layoutDiagram(true);
-        this.myDiagram.centerRect(this.myDiagram.documentBounds);
-        
-      });
-    });
   }
 
   loadSavedDiagrams(keepEditing = false): void {
@@ -217,7 +99,7 @@ export class FishboneComponent implements AfterViewInit {
         // If keepEditing flag is true, don't kill edit mode
         if (!keepEditing && !this.displayedDiagrams.some(d => d.id === this.selectedDiagramId)) {
           this.isEditing = false;
-        } 
+        }
       },
       error: err => alert('Error loading diagrams: ' + err)
     });
@@ -233,43 +115,6 @@ export class FishboneComponent implements AfterViewInit {
         // model is set by the service already
       },
       error: err => alert('Error loading diagram: ' + err)
-    });
-  }
-
-  saveCurrentDiagram(): void {
-    if (!this.newDiagramName) {
-      alert('Please enter a name');
-      return;
-    }
-    this.fishboneService.saveDiagram(this.newDiagramName).subscribe({
-       next: (response) => {
-      // Assume response.id contains the new diagram ID
-      this.selectedDiagramId = response.id;
-      this.loadSavedDiagrams(true); // reload list including the new one
-      this.loadSelectedDiagram({ id: response.id, name: this.newDiagramName });
-      this.onSaveSuccess();
-    },
-      error: err => alert('Error saving diagram: ' + err)
-    });
-  }
-
-  updateCurrentDiagram(): void {
-    if (!this.selectedDiagramId) {
-      alert('Please select a diagram to update');
-      return;
-    }
-    if (!this.newDiagramName) {
-      alert('Please enter a name for the diagram');
-      return;
-    }
-
-    this.fishboneService.updateDiagram(this.selectedDiagramId, this.newDiagramName).subscribe({
-      next: () => {
-        this.loadSavedDiagrams(true); // refresh list
-        this.onUpdateSuccess();
-        //alert('Diagram updated successfully');
-      },
-      error: err => alert('Error updating diagram: ' + err)
     });
   }
 
@@ -319,5 +164,113 @@ export class FishboneComponent implements AfterViewInit {
           });
         }
       });
+  }
+
+  private saveCurrentDiagram(): void {
+    if (!this.newDiagramName) {
+      alert('Please enter a name');
+      return;
+    }
+    this.fishboneService.saveDiagram(this.newDiagramName).subscribe({
+      next: (response) => {
+        // Assume response.id contains the new diagram ID
+        this.selectedDiagramId = response.id;
+        this.loadSavedDiagrams(true); // reload list including the new one
+        this.loadSelectedDiagram({ id: response.id, name: this.newDiagramName });
+        this.onSaveSuccess();
+      },
+      error: err => alert('Error saving diagram: ' + err)
+    });
+  }
+
+  private updateCurrentDiagram(): void {
+    if (!this.selectedDiagramId) {
+      alert('Please select a diagram to update');
+      return;
+    }
+    if (!this.newDiagramName) {
+      alert('Please enter a name for the diagram');
+      return;
+    }
+
+    this.fishboneService.updateDiagram(this.selectedDiagramId, this.newDiagramName).subscribe({
+      next: () => {
+        this.loadSavedDiagrams(true); // refresh list
+        this.onUpdateSuccess();
+        //alert('Diagram updated successfully');
+      },
+      error: err => alert('Error updating diagram: ' + err)
+    });
+  }
+  private onSaveSuccess() {
+    this.showMessage('Diagram Saved Successfully', 5000);
+  }
+
+  private onUpdateSuccess() {
+    this.showMessage('Diagram updated successfully', 5000);
+  }
+
+  private onDeleteSuccess() {
+    this.showMessage('Diagram deleted successfully', 5000);
+  }
+  private showMessage(message: string, duration: number) {
+    this.snackBar.open(message, 'Close', {
+      duration: duration, // 5 seconds
+      panelClass: ['snackbar-success']
+    });
+  }
+
+  private SetDeleteNodeHandler() {
+    this.fishboneService.setDeleteHandler(async (node: go.Node) => {
+      let message = "Delete this node?";
+
+
+      if (node.findTreeChildrenNodes().count > 0) {
+        if (node.isTreeRoot) {
+          this.snackBar.open('Cannot delete the root node. You can delete the whole fishbone diagram on the left pane', 'Close', {
+            duration: 5000,
+            panelClass: ['red-snackbar']
+          });
+        }
+        else {
+          message = "This node has child nodes. Delete the node and ALL its children?";
+          const confirmed = await this.dialog
+            .open(ConfirmDialogComponent, {
+              width: '350px',
+              panelClass: 'square-dialog',
+              data: { message }
+            })
+            .afterClosed()
+            .toPromise();
+
+          if (confirmed) {
+            this.fishboneService.deleteNodeAndChildren(node);
+          }
+        }
+      }
+      else {
+        this.fishboneService.deleteNodeAndChildren(node);
+      }
+
+
+    });
+  }
+
+  private SubsribeToNodeInfoRequestedEvent() {
+    this.fishboneService.nodeInfoRequested.subscribe(node => {
+      const currentInfo = node.data.info || '';
+
+      const dialogRef = this.dialog.open(NodeInfoDialog, {
+        width: '350px',
+        panelClass: 'square-dialog',
+        data: { info: currentInfo }
+      });
+
+      dialogRef.afterClosed().subscribe((result: string | undefined) => {
+        if (result !== undefined) {
+          this.fishboneService.updateNodeInfo(node, result);
+        }
+      });
+    });
   }
 }
