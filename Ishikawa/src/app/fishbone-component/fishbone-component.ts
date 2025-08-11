@@ -150,9 +150,10 @@ export class FishboneComponent implements AfterViewInit {
 
   // toolbar actions
   createNewDiagram(): void {
-    this.isEditing = true;
     this.fishboneService.createDefault();
-    this.fishboneService.loadFromNested(this.fishboneService.getNestedModel());
+    
+    this.isEditing = true;
+    
     this.selectedDiagramId = '';    // clear selection
     this.newDiagramName = '';
 
@@ -160,6 +161,7 @@ export class FishboneComponent implements AfterViewInit {
       setTimeout(() => {
       this.myDiagram.layoutDiagram(true); // recompute positions
       this.myDiagram.centerRect(this.myDiagram.documentBounds); // center it
+      this.fishboneService.loadFromNested(this.fishboneService.getNestedModel());
     }, 0);
   }
 

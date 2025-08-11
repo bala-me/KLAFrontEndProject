@@ -32,30 +32,6 @@ export class FishboneService {
       minScale: 0.5
     });
 
-    // ensure $ exists before creating makeButton that uses it
-    const makeButton = (text: string, action: (e: go.InputEvent, obj: go.GraphObject) => void) =>
-      $("ContextMenuButton",
-        $(go.TextBlock, text),
-        { click: action }
-      );
-
-    // context menu actions rely on adornedPart (need cast to Adornment)
-    const nodeMenu =
-      $("ContextMenu",
-        makeButton("Add Child", (_e, obj) => {
-          const node = (obj.part as go.Adornment)?.adornedPart;
-          if (node instanceof go.Node) {
-            this.addChild(node);
-          }
-        }),
-        makeButton("Delete", (_e, obj) => {
-          const node = (obj.part as go.Adornment)?.adornedPart;
-          if (node instanceof go.Node) {
-            this.deleteNodeAndChildren(node);
-          }
-        })
-      );
-
     // Node template (editable)
     this.diagram.nodeTemplate =
       $(go.Node, 'Auto',
@@ -164,7 +140,7 @@ export class FishboneService {
     else {
       // keep existing fishboneData if exists; otherwise default
       if (!this.fishboneData) this.createDefault();
-      this.loadFromNested(this.fishboneData);
+      //this.loadFromNested(this.fishboneData);
     }
 
     return this.diagram;
