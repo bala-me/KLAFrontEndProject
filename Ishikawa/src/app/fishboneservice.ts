@@ -332,8 +332,25 @@ export class FishboneService {
   }
 
   private handleError(error: any) {
-    console.error('API error:', error);
-    return throwError(error.message || 'Server error');
+    // Log to console or send to remote logging infrastructure
+    console.error('An error occurred:', error);
+
+    let errorMessage = 'Unknown error occurred';
+
+    if (error.error instanceof ErrorEvent) {
+      // Client-side or network error
+      errorMessage = `Client error: ${error.error.message}`;
+    } else if (error.status) {
+      // Backend error with status code
+      errorMessage = `Server returned code ${error.status}, message was: ${error.message || error.statusText}`;
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+
+    // You can customize this to display error messages in UI, etc.
+
+    // Return an observable with a user-facing error message
+    return throwError(() => new Error(errorMessage));
   }
 
 

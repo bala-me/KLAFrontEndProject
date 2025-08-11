@@ -24,7 +24,7 @@
     <div class="diagram-grid">
       <div class="diagram-tile" *ngFor="let d of displayedDiagrams" (click)="loadSelectedDiagram(d)"
         [class.selected]="d.id === selectedDiagramId">
-        {{ d.name }}
+        <div class="diagram-tile-text">{{ d.name }}</div>
         <button class="delete-btn" (click)="deleteDiagram(d, $event)" title="Delete diagram"><mat-icon class="material-symbols-outlined"
             style="color: black">delete</mat-icon></button>
       </div>

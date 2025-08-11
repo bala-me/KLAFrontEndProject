@@ -242,11 +242,13 @@ export class FishboneComponent implements AfterViewInit {
       return;
     }
     this.fishboneService.saveDiagram(this.newDiagramName).subscribe({
-      next: () => {
-        this.newDiagramName = '';
-        this.loadSavedDiagrams(true);
-        this.onSaveSuccess();
-      },
+       next: (response) => {
+      // Assume response.id contains the new diagram ID
+      this.selectedDiagramId = response.id;
+      this.loadSavedDiagrams(true); // reload list including the new one
+      this.loadSelectedDiagram({ id: response.id, name: this.newDiagramName });
+      this.onSaveSuccess();
+    },
       error: err => alert('Error saving diagram: ' + err)
     });
   }
