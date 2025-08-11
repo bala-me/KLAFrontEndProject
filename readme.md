@@ -1,33 +1,29 @@
-**Fishbone Diagram Editor**
+**Fishbone Diagram Editor**  
 A web application built with Angular, Flask+SQLite for creating, editing, saving, and managing Ishikawa (Fishbone) diagrams.
 
 ![til](https://github.com/bala-me/KLAFrontEndProject/blob/master/Animation.gif)
 
-**Features**
-Create new fishbone diagrams with default bones
+**Features**  
+* Create new fishbone diagrams with default bones
 
-Edit diagram nodes interactively (add, delete, update text and info)
+* Edit diagram nodes interactively (add, delete, update text and info)
 
-Save diagrams to backend storage and revisit anytime
+* Save diagrams to backend storage and revisit anytime
 
-Ability to view/edit diagrams created by other users
+* Ability to view/edit diagrams created by other users
 
-Load and update existing diagrams
+* Load and update existing diagrams
 
-Delete diagrams
+* Delete diagrams
 
-Node info editing via modal dialogs
+* Node info editing via modal dialogs
 
-Fishbones with any number of nested bones
+* Fishbones with any number of nested bones
 
-Backend APIs for persisting/reading/modifying/deleting diagrams in SQLite 
+* Backend APIs for persisting/reading/modifying/deleting diagrams in SQLite 
 
-**Future Improvements**
-Fully implement the unsaved changes detection and prompt before discarding edits.
+**Future Improvements**  
+* Fully implement the unsaved changes detection and prompt before discarding edits.
 
-Add undo/redo toolbar buttons for better UX.
-
-Enhance node styling and support for custom layouts.
-
-Add unit and integration tests.
+* Add unit and integration tests.
 
