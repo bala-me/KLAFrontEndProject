@@ -16,8 +16,8 @@ export class FishboneService {
 
   nodeInfoRequested = new EventEmitter<go.Node>();
 
-  constructor(private http: HttpClient){
-    
+  constructor(private http: HttpClient) {
+
   }
   // initialize diagram and templates, load initial data
   public initDiagram(diagramDiv: ElementRef, initialData?: any): go.Diagram {
@@ -79,59 +79,59 @@ export class FishboneService {
             return `${weight} ${size}px sans-serif`;
           })
         ),
-         {
-      selectionAdornmentTemplate:
-        $(go.Adornment, "Spot",
-          $(go.Panel, "Auto",
-            $(go.Shape, { fill: null, stroke: "dodgerblue", strokeWidth: 2 }),
-            $(go.Placeholder) // Node shape placeholder
-          ),
-          // Floating toolbar panel
-          $(go.Panel, "Horizontal",
-            {
-              alignment: go.Spot.TopRight,
-              alignmentFocus: go.Spot.BottomRight
-            },
-            $("Button",
-              {
-                click: (e, obj) => {
-                  const node = (obj.part as go.Adornment)?.adornedPart as go.Node;
-                  this.addChild(node);
+        {
+          selectionAdornmentTemplate:
+            $(go.Adornment, "Spot",
+              $(go.Panel, "Auto",
+                $(go.Shape, { fill: null, stroke: "dodgerblue", strokeWidth: 2 }),
+                $(go.Placeholder) // Node shape placeholder
+              ),
+              // Floating toolbar panel
+              $(go.Panel, "Horizontal",
+                {
+                  alignment: go.Spot.TopRight,
+                  alignmentFocus: go.Spot.BottomRight
                 },
-                toolTip: $("ToolTip", $(go.TextBlock, "Add Child"))
-              },
-              $(go.TextBlock, "+", { margin: 2, stroke: "green", font: "bold 14px sans-serif" })
-            ),
-            $("Button",
-              {
-                click: (e, obj) => {
-                  const node = (obj.part as go.Adornment)?.adornedPart as go.Node;
-                  if(node && this.deleteHandler){
-                    this.deleteHandler(node);
-                  }
-                },
-                toolTip: $("ToolTip", $(go.TextBlock, "Delete Node"))
-              },
-              $(go.TextBlock, "×", { margin: 2, stroke: "red", font: "bold 14px sans-serif" })
-            ),
+                $("Button",
+                  {
+                    click: (e, obj) => {
+                      const node = (obj.part as go.Adornment)?.adornedPart as go.Node;
+                      this.addChild(node);
+                    },
+                    toolTip: $("ToolTip", $(go.TextBlock, "Add Child"))
+                  },
+                  $(go.TextBlock, "+", { margin: 2, stroke: "green", font: "bold 14px sans-serif" })
+                ),
+                $("Button",
+                  {
+                    click: (e, obj) => {
+                      const node = (obj.part as go.Adornment)?.adornedPart as go.Node;
+                      if (node && this.deleteHandler) {
+                        this.deleteHandler(node);
+                      }
+                    },
+                    toolTip: $("ToolTip", $(go.TextBlock, "Delete Node"))
+                  },
+                  $(go.TextBlock, "×", { margin: 2, stroke: "red", font: "bold 14px sans-serif" })
+                ),
 
-             $("Button",
-              {
-                click: (e, obj) => {
-                  const node = (obj.part as go.Adornment)?.adornedPart as go.Node;
-                  if (node) {
-                    this.requestNodeInfo(node); // tells component "open dialog for this node"
-                  }
-                },
-                toolTip: $("ToolTip", $(go.TextBlock, "Add info to node"))
-              },
-              $(go.TextBlock, "ℹ", { margin: 2, stroke: "red", font: "bold 14px sans-serif" })
+                $("Button",
+                  {
+                    click: (e, obj) => {
+                      const node = (obj.part as go.Adornment)?.adornedPart as go.Node;
+                      if (node) {
+                        this.requestNodeInfo(node); // tells component "open dialog for this node"
+                      }
+                    },
+                    toolTip: $("ToolTip", $(go.TextBlock, "Add info to node"))
+                  },
+                  $(go.TextBlock, "ℹ", { margin: 2, stroke: "red", font: "bold 14px sans-serif" })
+                )
+
+
+              )
             )
-
-            
-          )
-        )
-    }
+        }
       );
 
     // Link template (FishboneLink)
@@ -159,8 +159,8 @@ export class FishboneService {
     // load initial data (nested or flat)
     if (initialData) {
       this.loadFromNested(initialData);
-    } 
-    
+    }
+
     else {
       // keep existing fishboneData if exists; otherwise default
       if (!this.fishboneData) this.createDefault();
@@ -226,25 +226,25 @@ export class FishboneService {
   }
 
   deleteNodeAndChildren(node: go.Node) {
-  if (!node) return;
-  const diagram = node.diagram;
-  if (!diagram) return;
-  
-  if(node.findTreeChildrenNodes().count >0){}
-  diagram.startTransaction("delete subtree");
+    if (!node) return;
+    const diagram = node.diagram;
+    if (!diagram) return;
 
-  // Helper: collect all children recursively
-  const collectSubtree = (n: go.Node, coll: go.Set<go.Part>) => {
-    coll.add(n);
-    n.findTreeChildrenNodes().each(child => collectSubtree(child, coll));
-  };
+    if (node.findTreeChildrenNodes().count > 0) { }
+    diagram.startTransaction("delete subtree");
 
-  const parts = new go.Set<go.Part>();
-  collectSubtree(node, parts);
+    // Helper: collect all children recursively
+    const collectSubtree = (n: go.Node, coll: go.Set<go.Part>) => {
+      coll.add(n);
+      n.findTreeChildrenNodes().each(child => collectSubtree(child, coll));
+    };
 
-  diagram.removeParts(parts, true); // `true` removes links too
-  diagram.commitTransaction("delete subtree");
-}
+    const parts = new go.Set<go.Part>();
+    collectSubtree(node, parts);
+
+    diagram.removeParts(parts, true); // `true` removes links too
+    diagram.commitTransaction("delete subtree");
+  }
   // helper: flatten nested JSON into nodeDataArray for TreeModel
   private walkJson(obj: any, arr: any[]) {
     const key = arr.length;

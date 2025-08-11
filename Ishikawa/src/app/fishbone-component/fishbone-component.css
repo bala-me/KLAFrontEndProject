@@ -219,3 +219,7 @@ background-color: #f44336 !important;
   font-style: italic;
   opacity: 0.9;
 }
+
+.left-panel {
+  overflow-y: scroll; /* Always show vertical scrollbar */
+}

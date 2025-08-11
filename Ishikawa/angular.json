@@ -26,10 +26,10 @@
               "src/custom-theme.scss",
               "src/styles.css"
             ],
-             "scripts": [
-                "node_modules/gojs/release/go.js",
-                "src/assets/FishboneLayout.js"
-              ]
+            "scripts": [
+              "node_modules/gojs/release/go.js",
+              "src/assets/FishboneLayout.js"
+            ]
           },
           "configurations": {
             "production": {

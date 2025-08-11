@@ -12,28 +12,22 @@
   <!-- Left panel: tiles -->
   <div class="left-panel">
     <div class="tile add-tile" (click)="createNewDiagram()">+ New Diagram</div>
-     <h3 class="diagram-title">Available diagrams</h3>
-      <div class="filter-buttons">
-      <button mat-button 
-              (click)="showMyDiagrams()" 
-              [disabled]="filterMode === 'mine'">
+    <h3 class="diagram-title">Available diagrams</h3>
+    <div class="filter-buttons">
+      <button mat-button (click)="showMyDiagrams()" [disabled]="filterMode === 'mine'">
         Mine
       </button>
-      <button mat-button 
-              (click)="showAllDiagrams()" 
-              [disabled]="filterMode === 'all'">
+      <button mat-button (click)="showAllDiagrams()" [disabled]="filterMode === 'all'">
         All
       </button>
     </div>
     <div class="diagram-grid">
-      <div 
-        class="diagram-tile" 
-        *ngFor="let d of displayedDiagrams" 
-       (click)="loadSelectedDiagram(d)"
-       [class.selected]="d.id === selectedDiagramId"
-      >
+      <div class="diagram-tile" *ngFor="let d of displayedDiagrams" (click)="loadSelectedDiagram(d)"
+        [class.selected]="d.id === selectedDiagramId">
         {{ d.name }}
-        <button class="delete-btn" (click)="deleteDiagram(d, $event)" title="Delete diagram"  [disabled]="d.id === selectedDiagramId"><mat-icon class="material-symbols-outlined" style="color: black">delete</mat-icon></button>
+        <button class="delete-btn" (click)="deleteDiagram(d, $event)" title="Delete diagram"
+          [disabled]="d.id === selectedDiagramId"><mat-icon class="material-symbols-outlined"
+            style="color: black">delete</mat-icon></button>
       </div>
     </div>
   </div>
@@ -43,32 +37,26 @@
     <!-- Toolbar -->
 
     @if(!isEditing){
-      <div class="empty-state">
-    <mat-card class="empty-card">
-      <mat-card-content>
-        Please create a new fishbone or select an existing fishbone from the left pane.
-      </mat-card-content>
-    </mat-card>
-  </div>
+    <div class="empty-state">
+      <mat-card class="empty-card">
+        <mat-card-content>
+          Please create a new fishbone or select an existing fishbone from the left pane.
+        </mat-card-content>
+      </mat-card>
+    </div>
     }
     @else{
-        <div class="toolbar">
+    <div class="toolbar">
 
       <!-- Input + buttons styled like tiles -->
- <div class="input-row">
-  <input 
-    type="text" 
-    [(ngModel)]="newDiagramName" 
-    placeholder="Enter diagram name"
-    class="diagram-input"
-  />
+      <div class="input-row">
+        <input type="text" [(ngModel)]="newDiagramName" placeholder="Enter diagram name" class="diagram-input" />
 
-  <button class="diagram-button save-btn" (click)="saveOrUpdateDiagram()">Save</button>
-</div>
+        <button class="diagram-button save-btn" (click)="saveOrUpdateDiagram()">Save</button>
+      </div>
     </div>
-  }
-      <!-- Diagram container -->
-     <div #diagramDiv class="diagram-full" [class.hidden] = "!isEditing"></div>
+    }
+    <!-- Diagram container -->
+    <div #diagramDiv class="diagram-full" [class.hidden]="!isEditing"></div>
   </div>
 </div>
-
