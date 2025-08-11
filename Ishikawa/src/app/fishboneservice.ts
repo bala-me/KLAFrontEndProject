@@ -32,6 +32,17 @@ export class FishboneService {
       minScale: 0.5
     });
 
+    const originalDoKeyDown = this.diagram.commandHandler.doKeyDown;
+
+    this.diagram.commandHandler.doKeyDown = function () {
+      if (this.diagram.lastInput.key === "Delete") {
+        // ignore Delete key, do nothing
+        return;
+      }
+      // otherwise, proceed as usual
+      originalDoKeyDown.call(this);
+    };
+
     // Node template (editable)
     this.diagram.nodeTemplate =
       $(go.Node, 'Auto',
