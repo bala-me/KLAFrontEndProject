@@ -1,7 +1,7 @@
 **Fishbone Diagram Editor**
 A web application built with Angular, Flask+SQLite for creating, editing, saving, and managing Ishikawa (Fishbone) diagrams.
 
-![til](https://raw.githubusercontent.com/hashrocket/hr-til/master/app/assets/images/banner.png)
+![til](https://github.com/bala-me/KLAFrontEndProject/blob/master/Animation.gif)
 
 **Features**
 Create new fishbone diagrams with default bones
