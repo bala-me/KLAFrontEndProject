@@ -128,9 +128,9 @@ export class FishboneComponent implements AfterViewInit {
   showMyDiagrams() {
     this.filterMode = 'mine';
     // Only exit editing if current selected diagram is not in filtered list
-    console.log(this.displayedDiagrams.toString());
-
-    this.displayedDiagrams = this.savedDiagrams.slice(0, 5); // first 5 only
+    //console.log(this.displayedDiagrams.toString());
+    const length = this.savedDiagrams.length;
+    this.displayedDiagrams = this.savedDiagrams.slice(Math.max(length - 5, 0), length);// bottom 5 only
     if (!this.displayedDiagrams.some(d => d.id === this.selectedDiagramId)) {
       this.isEditing = false;
       this.selectedDiagramId = '';
@@ -140,7 +140,7 @@ export class FishboneComponent implements AfterViewInit {
   showAllDiagrams() {
     this.filterMode = 'all';
 
-    this.displayedDiagrams = this.savedDiagrams; // all items
+    this.displayedDiagrams = [...this.savedDiagrams]; // all items
     // Only exit editing if current selected diagram is not in filtered list
     if (!this.displayedDiagrams.some(d => d.id === this.selectedDiagramId)) {
       this.isEditing = false;
@@ -156,7 +156,8 @@ export class FishboneComponent implements AfterViewInit {
     this.selectedDiagramId = '';    // clear selection
     this.newDiagramName = '';
 
-    setTimeout(() => {
+    // Set container size before layout:
+      setTimeout(() => {
       this.myDiagram.layoutDiagram(true); // recompute positions
       this.myDiagram.centerRect(this.myDiagram.documentBounds); // center it
     }, 0);
@@ -182,13 +183,23 @@ export class FishboneComponent implements AfterViewInit {
   @HostListener('window:resize')
   resizeDiagram(): void {
     if (this.myDiagram) {
-      // let the diagram container match viewport height (if you have toolbar height subtract it)
       const toolbarHeight = document.querySelector('.toolbar')?.clientHeight ?? 0;
       const height = window.innerHeight - toolbarHeight;
       this.myDiagram.div!.style.height = height + 'px';
       this.myDiagram.div!.style.width = window.innerWidth + 'px';
       this.myDiagram.requestUpdate();
     }
+  }
+
+  private layoutAndCenterDiagram(): void {
+    // Use double requestAnimationFrame for rendering sync with browser repaint cycle
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        this.myDiagram.layoutDiagram(true);
+        this.myDiagram.centerRect(this.myDiagram.documentBounds);
+        
+      });
+    });
   }
 
   loadSavedDiagrams(keepEditing = false): void {
@@ -204,7 +215,7 @@ export class FishboneComponent implements AfterViewInit {
         // If keepEditing flag is true, don't kill edit mode
         if (!keepEditing && !this.displayedDiagrams.some(d => d.id === this.selectedDiagramId)) {
           this.isEditing = false;
-        }
+        } 
       },
       error: err => alert('Error loading diagrams: ' + err)
     });

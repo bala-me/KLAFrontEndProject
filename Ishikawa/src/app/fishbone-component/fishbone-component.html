@@ -13,11 +13,11 @@
   <div class="left-panel">
     <div class="tile add-tile" (click)="createNewDiagram()">+ New Diagram</div>
     <h3 class="diagram-title">Available diagrams</h3>
-    <div class="filter-buttons">
-      <button mat-button (click)="showMyDiagrams()" [disabled]="filterMode === 'mine'">
+    <div class="diagram-filter-buttons">
+      <button mat-button class="diagram-filter-btn"  (click)="showMyDiagrams()" [class.active]="filterMode === 'mine'"  [disabled]="filterMode === 'mine'">
         Mine
       </button>
-      <button mat-button (click)="showAllDiagrams()" [disabled]="filterMode === 'all'">
+      <button mat-button class="diagram-filter-btn"  (click)="showAllDiagrams()" [class.active]="filterMode === 'all'" [disabled]="filterMode === 'all'">
         All
       </button>
     </div>
